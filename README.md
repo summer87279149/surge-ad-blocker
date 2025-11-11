@@ -1,9 +1,7 @@
-# Surge 去广告模块合集
+# Surge 去广告模块
 
 为多个热门 App 提供可直接导入 Surge 的去广告模块。
 复制对应的 Raw 链接，在 Surge → Modules → Remote Module 中添加即可使用。
-
-## 已提供的模块
 
 | App | 说明 | Surge 远程链接 |
 | --- | --- | --- |
@@ -13,7 +11,7 @@
 | 米家（小米） | 去除米家首页推荐/商城推广并阻断埋点上报 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xiaomi/XiaomiAdBlock.sgmodule` |
 | 闲鱼 | 阻断穿山甲、广点通、阿里等启动广告 SDK | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xianyu/XianyuAdBlock.sgmodule` |
 
-## 使用须知
+## 须知
 
 - 这些模块仅供个人学习、研究网络请求结构之用，不代表或鼓励任何违规行为。
 - 请确保遵守当地法律以及目标 App、服务的用户协议。任何使用造成的后果由使用者自行承担。

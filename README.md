@@ -10,6 +10,7 @@
 | 高德地图 | 拦截高德广告素材下载、内部日志与第三方曝光跟踪 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/amap/AmapAdBlock.sgmodule` |
 | QQ 音乐 | 禁止腾讯音乐广告配置、素材拉取与广点通曝光上报 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/qqmusic/QQMusicAdBlock.sgmodule` |
 | 米家（小米） | 去除米家首页推荐/商城推广并阻断埋点上报 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xiaomi/XiaomiAdBlock.sgmodule` |
+| 闲鱼 | 阻断穿山甲、广点通、阿里等启动广告 SDK | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xianyu/XianyuAdBlock.sgmodule` |
 
 ## 使用须知
 

@@ -1,0 +1,38 @@
+#!name = Xianyu Ad Blocker
+#!desc = 屏蔽闲鱼启动页广告和第三方埋点
+#!author = Codex
+#!version = 2025.11.11
+
+[Rule]
+# 字节穿山甲链路（启动位、日志、素材）
+DOMAIN-SUFFIX,pangolin-sdk-toutiao.com,REJECT
+DOMAIN-SUFFIX,pangolin-sdk-toutiao1.com,REJECT
+DOMAIN-SUFFIX,ctobsnssdk.com,REJECT
+DOMAIN-SUFFIX,pglstatp-toutiao.com,REJECT
+DOMAIN-SUFFIX,bytescm.com,REJECT
+DOMAIN,log-api.pangolin-sdk-toutiao.com,REJECT
+DOMAIN,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN,api-access.pangolin-sdk-toutiao1.com,REJECT
+
+# 腾讯广点通 / 互娱广告
+DOMAIN-SUFFIX,e.qq.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+DOMAIN,sdk.e.qq.com,REJECT
+DOMAIN,mi.gdt.qq.com,REJECT
+
+# 阿里系广告与埋点
+DOMAIN-SUFFIX,tanx.com,REJECT
+DOMAIN,h-adashx.ut.taobao.com,REJECT
+DOMAIN,loggw-ex.alipay.com,REJECT
+DOMAIN,ipm.atm.youku.com,REJECT
+DOMAIN,ems.youku.com,REJECT
+
+# 其他常见广告 SDK（贝子、互橙等）
+DOMAIN,sdk.beizi.biz,REJECT
+DOMAIN,sdktmp.hubcloud.com.cn,REJECT
+DOMAIN,lf-cdn-tos.bytescm.com,REJECT
+DOMAIN,df.tanx.com,REJECT
+DOMAIN,ef-dongfeng.tanx.com,REJECT
+DOMAIN,bdlog.tanx.com,REJECT
+DOMAIN,sdkreport.e.qq.com,REJECT

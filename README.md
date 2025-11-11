@@ -1,6 +1,7 @@
 # Surge 去广告模块合集
 
-为多个热门 App 提供可直接导入 Surge 的去广告模块。复制对应的 Raw 链接，在 Surge → Modules → Remote Module 中添加即可使用。
+为多个热门 App 提供可直接导入 Surge 的去广告模块。
+复制对应的 Raw 链接，在 Surge → Modules → Remote Module 中添加即可使用。
 
 ## 已提供的模块
 
@@ -17,4 +18,3 @@
 - 这些模块仅供个人学习、研究网络请求结构之用，不代表或鼓励任何违规行为。
 - 请确保遵守当地法律以及目标 App、服务的用户协议。任何使用造成的后果由使用者自行承担。
 
-复制链接 → Surge → Modules → Add → Remote Module → 粘贴 → Enable，即可生效。若需新增其他 App，请关注仓库更新。

@@ -1,0 +1,16 @@
+#!name = Amap Ad Blocker
+#!desc = 屏蔽高德地图启动/弹窗广告与第三方曝光上报
+#!author = Codex
+#!version = 2025.11.11
+
+[Rule]
+# 广告素材与配置
+DOMAIN,optimus-ads.amap.com,REJECT
+URL-REGEX,^https?:\/\/awaken\.amap\.com\/ws\/h5_log,REJECT
+
+# 第三方广告跟踪
+DOMAIN-SUFFIX,tanx.com,REJECT
+DOMAIN-SUFFIX,qchannel01.cn,REJECT
+DOMAIN-SUFFIX,qchannel03.cn,REJECT
+DOMAIN,ipm.atm.youku.com,REJECT
+DOMAIN,ems.youku.com,REJECT

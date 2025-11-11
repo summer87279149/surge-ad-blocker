@@ -1,0 +1,22 @@
+#!name = Xiaomi Mi Home Ad Blocker
+#!desc = 屏蔽米家 App 推荐位、商城推广与数据上报
+#!author = Codex
+#!version = 2025.11.11
+
+[Rule]
+# 米家推荐/商城接口
+DOMAIN-SUFFIX,home.mi.com,REJECT
+DOMAIN-SUFFIX,shopapi.io.mi.com,REJECT
+DOMAIN-SUFFIX,mi-img.com,REJECT
+
+# 小米埋点与跟踪
+DOMAIN-SUFFIX,tracking.miui.com,REJECT
+DOMAIN-SUFFIX,api.mijia.tech,REJECT
+DOMAIN-SUFFIX,stat.youpin.mi.com,REJECT
+
+# 第三方统计/广告联动
+DOMAIN-SUFFIX,jpush.cn,REJECT
+DOMAIN-SUFFIX,gtimg.com,REJECT
+DOMAIN-SUFFIX,tencent.com,REJECT
+DOMAIN-SUFFIX,baidu.com,REJECT
+DOMAIN-SUFFIX,talkingdata.com,REJECT

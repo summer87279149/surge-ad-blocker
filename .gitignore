@@ -1,0 +1,7 @@
+# Capture artifacts
+*.chlz
+session/
+*/session/
+
+# OS clutter
+.DS_Store

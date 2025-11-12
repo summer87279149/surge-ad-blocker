@@ -9,6 +9,19 @@ URL-REGEX,^https?:\/\/app\.bilibili\.com\/[^?]+\/splash\/(show|list)(?:\?.*)?,RE
 # 广告上报接口（host 兼容 cm.*）
 URL-REGEX,^https?:\/\/cm\.[^\/]+\/cm\/api\/(conversion|fees)\/,REJECT
 DOMAIN-KEYWORD,cm.bili,REJECT
+# 数据/曝光日志（来自 dataflow/data 捕获）
+DOMAIN,dataflow.biliapi.com,REJECT
+DOMAIN,data.bilibili.com,REJECT
+URL-REGEX,^https?:\/\/api\.bilibili\.com\/x\/push\/report(?:\?.*)?,REJECT
+# 第三方监测与广告追踪
+DOMAIN,ef-dongfeng.tanx.com,REJECT
+DOMAIN-SUFFIX,miaozhen.com,REJECT
+DOMAIN,browser-intake-datadoghq.com,REJECT
+DOMAIN,otheve.beacon.qq.com,REJECT
+DOMAIN,ios.bugly.qq.com,REJECT
+DOMAIN,o33249.ingest.us.sentry.io,REJECT
+# 游戏中心广告实验接口
+DOMAIN,line3-h5-mobile-api.biligame.com,REJECT
 
 [Script]
 BiliFeedAdCleaner = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/[^?]+\/feed\/index(\?|$),script-update-interval=0,timeout=10,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/bilibili/scripts/BiliFeedAdCleaner.js

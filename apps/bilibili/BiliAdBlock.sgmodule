@@ -2,7 +2,7 @@
 #!desc = 屏蔽 B 站 iOS App 启动页、信息流广告并阻断商业化上报
 #!author = Codex
 #!version = 2025.11.11
-#!resource=BiliFeedAdCleaner data:application/javascript;base64,ZnVuY3Rpb24gcHVyZ2VCYW5uZXIoYXJyKSB7CiAgcmV0dXJuIGFyci5maWx0ZXIoaXRlbSA9PiB7CiAgICBpZiAoIWl0ZW0gfHwgdHlwZW9mIGl0ZW0gIT09ICdvYmplY3QnKSB7CiAgICAgIHJldHVybiBmYWxzZTsKICAgIH0KICAgIGlmIChpdGVtLmlzX2FkIHx8IGl0ZW0uY2FyZF9nb3RvID09PSAnYWQnIHx8IGl0ZW0uZ290byA9PT0gJ2FkJykgewogICAgICByZXR1cm4gZmFsc2U7CiAgICB9CiAgICBpZiAoQXJyYXkuaXNBcnJheShpdGVtLmJhbm5lcl9pdGVtKSkgewogICAgICBpdGVtLmJhbm5lcl9pdGVtID0gaXRlbS5iYW5uZXJfaXRlbS5maWx0ZXIoYiA9PiAhKGIgJiYgKGIuaXNfYWQgfHwgYi5hZF9iYW5uZXIpKSk7CiAgICAgIGlmIChpdGVtLmJhbm5lcl9pdGVtLmxlbmd0aCA9PT0gMCkgewogICAgICAgIHJldHVybiBmYWxzZTsKICAgICAgfQogICAgfQogICAgaWYgKGl0ZW0uYWRfaW5mbykgewogICAgICBkZWxldGUgaXRlbS5hZF9pbmZvOwogICAgfQogICAgcmV0dXJuIHRydWU7CiAgfSk7Cn0KCnRyeSB7CiAgaWYgKCEkcmVzcG9uc2UuYm9keSkgewogICAgJGRvbmUoe30pOwogIH0KICBjb25zdCBvYmogPSBKU09OLnBhcnNlKCRyZXNwb25zZS5ib2R5KTsKICBpZiAob2JqICYmIG9iai5kYXRhICYmIEFycmF5LmlzQXJyYXkob2JqLmRhdGEuaXRlbXMpKSB7CiAgICBvYmouZGF0YS5pdGVtcyA9IHB1cmdlQmFubmVyKG9iai5kYXRhLml0ZW1zKTsKICB9CiAgJGRvbmUoeyBib2R5OiBKU09OLnN0cmluZ2lmeShvYmopIH0pOwp9IGNhdGNoIChlcnIpIHsKICAkZG9uZSh7fSk7Cn0K
+#!resource=BiliFeedAdCleaner.js https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/bilibili/scripts/BiliFeedAdCleaner.js
 
 [Rule]
 # 启动页广告接口（版本无关）
@@ -12,4 +12,4 @@ URL-REGEX,^https?:\/\/cm\.[^\/]+\/cm\/api\/(conversion|fees)\/,REJECT
 DOMAIN-KEYWORD,cm.bili,REJECT
 
 [Script]
-BiliFeedAdCleaner = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/[^?]+\/feed\/index(\?|$),script-update-interval=0,timeout=10,script-path=BiliFeedAdCleaner
+BiliFeedAdCleaner = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/[^?]+\/feed\/index(\?|$),script-update-interval=0,timeout=10,script-path=BiliFeedAdCleaner.js

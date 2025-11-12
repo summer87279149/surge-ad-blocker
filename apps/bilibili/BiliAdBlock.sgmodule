@@ -2,7 +2,6 @@
 #!desc = 屏蔽 B 站 iOS App 启动页、信息流广告并阻断商业化上报
 #!author = Codex
 #!version = 2025.11.11
-#!resource=BiliFeedAdCleaner.js https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/bilibili/scripts/BiliFeedAdCleaner.js
 
 [Rule]
 # 启动页广告接口（版本无关）
@@ -12,4 +11,4 @@ URL-REGEX,^https?:\/\/cm\.[^\/]+\/cm\/api\/(conversion|fees)\/,REJECT
 DOMAIN-KEYWORD,cm.bili,REJECT
 
 [Script]
-BiliFeedAdCleaner = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/[^?]+\/feed\/index(\?|$),script-update-interval=0,timeout=10,script-path=BiliFeedAdCleaner.js
+BiliFeedAdCleaner = type=http-response,requires-body=1,max-size=0,pattern=^https?:\/\/app\.bilibili\.com\/[^?]+\/feed\/index(\?|$),script-update-interval=0,timeout=10,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/bilibili/scripts/BiliFeedAdCleaner.js

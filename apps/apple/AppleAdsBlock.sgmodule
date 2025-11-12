@@ -1,0 +1,29 @@
+#!name = Apple Ads Blocker
+#!desc = 阻断第三方 App 集成的 Apple Advertising / AdServices 相关接口
+#!author = Codex
+#!version = 2025.11.12
+
+[Rule]
+# iAd 传统广告接口与素材 CDN
+DOMAIN-SUFFIX,iad.apple.com,REJECT
+DOMAIN-SUFFIX,iad-akamai.apple.com,REJECT
+DOMAIN,iad.apple.com.edgesuite.net,REJECT
+DOMAIN,iad.apple.com.edgekey.net,REJECT
+DOMAIN,iad.apple.com.edgekey.net.globalredir.akadns.net,REJECT
+DOMAIN,iadct.itunes.apple.com,REJECT
+
+# AdServices / SKAdNetwork 归因接口
+DOMAIN,api-adservices.apple.com,REJECT
+DOMAIN,skadsdk.apple.com,REJECT
+DOMAIN,api-adservices.apple.com.cdn-apple.com,REJECT
+
+# App Store / Apple News 广告内容
+DOMAIN,amp-api-edge.apps.apple.com,REJECT
+DOMAIN,bag.itunes.apple.com,REJECT
+DOMAIN,news-events.apple.com,REJECT
+DOMAIN,news-client.apple.com,REJECT
+
+# 诊断/追踪上报（会反馈 Apple 广告投放效果）
+DOMAIN,metrics.icloud.com,REJECT
+DOMAIN,metrics.apple.com,REJECT
+DOMAIN,iadtracking.apple.com,REJECT

@@ -8,9 +8,9 @@
 | QQ 音乐 | 禁止腾讯音乐广告配置、素材拉取与广点通曝光上报 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/qqmusic/QQMusicAdBlock.sgmodule` |
 | 米家（小米） | 去除米家首页推荐/商城推广并阻断埋点上报 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xiaomi/XiaomiAdBlock.sgmodule` |
 | 闲鱼 | 阻断穿山甲、广点通、阿里等启动广告 SDK | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/xianyu/XianyuAdBlock.sgmodule` |
+| Apple 广告 SDK | 阻断第三方 App 接入的 Apple Advertising / AdServices 接口 | `https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/apple/AppleAdsBlock.sgmodule` |
 
 ## 须知
 
 - 这些模块仅供个人学习、研究网络请求结构之用，不代表或鼓励任何违规行为。
 - 请确保遵守当地法律以及目标 App、服务的用户协议。任何使用造成的后果由使用者自行承担。
-

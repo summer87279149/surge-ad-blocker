@@ -1,8 +1,1 @@
-# Capture artifacts
-*.chlz
-session/
-*/session/
-CODEX_RULES*.md
-
-# OS clutter
 .DS_Store

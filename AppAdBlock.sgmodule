@@ -1,0 +1,56 @@
+#!name = App 去广告（合并版）
+#!desc = 合并已验证的开屏、首页弹窗、信息流与广告 SDK 过滤；仅添加 7 个必要的 MitM 域名。
+#!author = summer87279149
+#!version = 2026.10.23.1
+
+[Rule]
+[Rule]
+DOMAIN,api-access.pangolin-sdk-toutiao.com,REJECT
+DOMAIN,api-access.pangolin-sdk-toutiao1.com,REJECT
+DOMAIN,sf3-fe-tos.pglstatp-toutiao.com,REJECT
+DOMAIN,sf6-fe-tos.pglstatp-toutiao.com,REJECT
+DOMAIN,mobads.baidu.com,REJECT
+DOMAIN,mobads-pre-config.cdn.bcebos.com,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+DOMAIN-SUFFIX,adkwai.com,REJECT
+DOMAIN-SUFFIX,adukwai.com,REJECT
+DOMAIN,ujoy.anythinktech.com,REJECT
+DOMAIN,sdk.adx.adwangmai.com,REJECT
+DOMAIN,sdk-cfg.adx.adwangmai.com,REJECT
+DOMAIN-SUFFIX,ubixioe.com,REJECT
+DOMAIN,sdk.tianmu.mobi,REJECT
+DOMAIN,zlsdk.1rtb.net,REJECT
+DOMAIN,sdk.1rtb.net,REJECT
+DOMAIN,s.1rtb.net,REJECT
+DOMAIN,cdn.1rtb.com,REJECT
+DOMAIN,mpcfg.fancydsp.com,REJECT
+DOMAIN,g.fancyapi.com,REJECT
+DOMAIN-SUFFIX,admobile.top,REJECT
+DOMAIN,ssp-sdk-api.jiguang.cn,REJECT
+DOMAIN,ssp-sdk-status.jiguang.cn,REJECT
+DOMAIN,polar-sdk-api.jiguang.cn,REJECT
+DOMAIN-SUFFIX,ad.gameley.com,REJECT
+DOMAIN,ssp.maplehaze.cn,REJECT
+DOMAIN,ad.tencentmusic.com,REJECT
+DOMAIN,tmead.y.qq.com,REJECT
+DOMAIN,tmeadquic.y.qq.com,REJECT
+DOMAIN,adcdn6.tencentmusic.com,REJECT
+DOMAIN,adcdn.tencentmusic.com,REJECT
+DOMAIN-KEYWORD,wallpaper-1258344696,REJECT
+DOMAIN,pgdt.gtimg.cn,REJECT
+DOMAIN-SUFFIX,gdtimg.com,REJECT
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,e.qq.com,REJECT
+URL-REGEX,^https?:\/\/app\.bili(?:bili\.com|api\.net|api\.com)(?::443)?\/x\/v2\/splash\/(?:show|list|brand\/list|event\/list2)(?:\?|$),REJECT
+URL-REGEX,^https?:\/\/amap-aos-info-nogw\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt(?:\?|$),REJECT
+DOMAIN,optimus-ads.amap.com,REJECT
+URL-REGEX,^https?:\/\/hmbaby\.simshine\.cn(?::443)?\/(?:admin\/filter\/advert\/getAdvertLists|admin\/filter\/crowdFunding\/getNewProductData)(?:\?|$),REJECT
+
+[Script]
+JumpAds = type=http-request,pattern=^https?:\/\/switch\.jumpvg\.com(?::443)?\/jump\/(?:getlaunchad\/v2|ad\/home\/screen(?:\/full_v2)?|ad\/kiko_down_page\/conf|recommend\/ad_conf|notice\/popup)(?:\?|$),timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js
+AlcidaeAdConfig = type=http-response,pattern=^https?:\/\/app-api-32\.ihaique\.net(?::443)?\/api\/app\/v5\/appad\/cmd\/AppadGetSplashAds(?:\?|$),requires-body=true,max-size=65536,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js
+BiliFeedAdCleaner = type=http-response,pattern=^https?:\/\/app\.bilibili\.com(?::443)?\/[^?]+\/feed\/index(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js
+
+[MITM]
+# 保留主配置中的 Apple 定位域名，只插入去广告所需的域名。
+hostname = %INSERT% app.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com

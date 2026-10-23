@@ -1,22 +1,24 @@
-# Surge 去广告模块
+# App 去广告（合并版）
 
-保留以下两个精简模块。它们不封锁 App 主接口、登录、游戏中心、歌曲播放或 Apple 系统服务。
+在 Surge 中只启用这一个模块：
 
-| App | 用途 | 远程模块 |
-| --- | --- | --- |
-| 哔哩哔哩 | 过滤首页信息流中的广告卡片 | [BiliAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/bilibili/BiliAdBlock.sgmodule) |
-| QQ 音乐 | 拦截广告配置、广告素材和相关广告 SDK | [QQMusicAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/apps/qqmusic/QQMusicAdBlock.sgmodule) |
+[安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-B 站信息流过滤需要 MitM，仅添加 `app.bilibili.com`；QQ 音乐模块不需要 MitM。
+它合并了已抓包确认的广告 SDK、QQ 音乐广告、B 站与高德开屏、海马爸比广告接口，以及 Alcidae、Jump、B 站信息流过滤。旧的分散模块已移除，请停用手机中已缓存的旧模块，避免重复执行。
 
-## 2026-10-23 清理
+## 必需文件
 
-删除旧米家、Apple、高德、闲鱼模块。旧米家模块会拒绝设备主接口；旧 Apple 模块包含 App Store / News 等系统服务；旧高德已由手机上的精准开屏规则替代；旧闲鱼模块重复拦截多个通用广告 SDK，并包含范围过宽的 CDN 规则。
+- `AppAdBlock.sgmodule`：唯一的 Surge 模块，包含拦截规则、脚本入口和 MitM 域名。
+- `AppAdFilter.js`：三个脚本入口共用的过滤文件。模块自动从此仓库下载，不能删除。
 
-B 站模块移除游戏中心、推送、通用诊断及重复开屏规则。QQ 音乐移除普通统计与无关域名规则，只保留广告配置和素材拦截。
+脚本不记录请求、响应或用户信息。Jump 广告接口直接返回空结果；Alcidae 保留请求 ID 并清空广告数组；B 站只移除有广告标记的卡片。
 
-手机另外安装的「哔哩哔哩与高德开屏广告拦截」「App 广告精准过滤」「已确认广告域名拦截」继续负责已经抓包确认的开屏、弹窗与广告 SDK。
+## MitM
 
-主配置中用户需要的 Apple 定位域名应由用户自己保留，不由去广告模块覆盖。删除 GitHub 文件不会自动卸载手机中已经缓存的旧模块，旧模块应保持停用。
+需要开启 MitM 和脚本。模块仅添加 7 个明确域名，不解密歌曲播放、摄像头视频或地图瓦片。用户主配置中的 `gs-loc-cn.apple.com` 和 `gs-loc.apple.com` 继续保留，实际共 9 个主机名。
 
-删除前版本仍保留在 Git 历史中。
+此模块不封锁米家设备主接口、App Store 接口、B 站游戏中心或普通用户信息接口。Apple Home 不作处理。
+
+## 更新与恢复
+
+以此仓库为维护来源，修改后更新模块和脚本。应用更新或广告接口变化时可能需要调整。旧文件保留在 Git 历史中，当前分支不保留抓包、测试或备份文件。

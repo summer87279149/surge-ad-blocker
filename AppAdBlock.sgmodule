@@ -1,9 +1,8 @@
 #!name = App 去广告（合并版）
 #!desc = 合并已验证的开屏、首页弹窗、信息流与广告 SDK 过滤；仅添加 7 个必要的 MitM 域名。
 #!author = summer87279149
-#!version = 2026.10.23.1
+#!version = 2026.10.23.2
 
-[Rule]
 [Rule]
 DOMAIN,api-access.pangolin-sdk-toutiao.com,REJECT
 DOMAIN,api-access.pangolin-sdk-toutiao1.com,REJECT

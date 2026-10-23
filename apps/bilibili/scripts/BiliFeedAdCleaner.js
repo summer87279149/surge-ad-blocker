@@ -19,9 +19,11 @@ function purgeBanner(arr) {
   });
 }
 
+(function () {
 try {
   if (!$response.body) {
     $done({});
+    return;
   }
   const obj = JSON.parse($response.body);
   if (obj && obj.data && Array.isArray(obj.data.items)) {
@@ -31,3 +33,4 @@ try {
 } catch (err) {
   $done({});
 }
+})();

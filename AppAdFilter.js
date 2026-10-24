@@ -3,6 +3,40 @@
   const url = String($request.url || "");
   const isResponse = typeof $response !== "undefined";
   try {
+    if (isResponse && /^https?:\/\/app\.bili(?:bili\.com|api\.net|api\.com)(?::443)?\/x\/v2\/splash\/(?:show|list|event\/list2)(?:\?|$)/.test(url)) {
+      const data = JSON.parse($response.body);
+      if (data && data.code === 0 && data.data && typeof data.data === "object" && !Array.isArray(data.data)) {
+        let recognized = false;
+        let changed = false;
+        for (const key of ["show", "list", "event_list"]) {
+          if (Array.isArray(data.data[key])) {
+            recognized = true;
+            if (data.data[key].length > 0) {
+              data.data[key] = [];
+              changed = true;
+            }
+          }
+        }
+        if (recognized && typeof data.data.max_time === "number" && data.data.max_time > 0) {
+          data.data.max_time = 0;
+          changed = true;
+        }
+        if (changed) {
+          $done({ body: JSON.stringify(data) });
+          return;
+        }
+      }
+    }
+    if (isResponse && /^https?:\/\/(?:g-)?acs\.m\.goofish\.com(?::443)?\/gw\/mtop\.taobao\.idlecommerce\.splash\.async\.ads\/1\.0\/?(?:\?|$)/.test(url)) {
+      const data = JSON.parse($response.body);
+      if (data && Array.isArray(data.ret) && data.ret.some(value => typeof value === "string" && /^SUCCESS::/.test(value)) &&
+          data.data && data.data.adMap && typeof data.data.adMap === "object" && !Array.isArray(data.data.adMap) &&
+          Object.keys(data.data.adMap).length > 0) {
+        data.data.adMap = {};
+        $done({ body: JSON.stringify(data) });
+        return;
+      }
+    }
     if (!isResponse && /^https?:\/\/switch\.jumpvg\.com(?::443)?\//.test(url)) {
       const path = url.split("?")[0].replace(/^https?:\/\/switch\.jumpvg\.com(?::443)?/, "");
       const arrays = ["/jump/ad/home/screen", "/jump/recommend/ad_conf", "/jump/notice/popup"];

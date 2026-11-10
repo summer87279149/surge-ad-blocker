@@ -1,17 +1,31 @@
 # App 去广告（合并版）
 
-在 Surge 中只启用这一个模块：
+在 Surge 的「模块」中从 URL 安装，并启用「App 去广告（GitHub 版）」。停用旧的本地「App 去广告（合并版）」，避免两份规则同时匹配。模块会从 GitHub 下载脚本。 [安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-[安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
-
-它合并了已抓包确认的广告 SDK、QQ 音乐广告、B 站与高德开屏、海马爸比广告接口，以及 Alcidae、Jump、B 站信息流过滤。旧的分散模块已移除，请停用手机中已缓存的旧模块，避免重复执行。
+当前模块和脚本均为 `2026.11.10.4`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
 
 ## 必需文件
 
-- `AppAdBlock.sgmodule`：唯一的 Surge 模块，包含拦截规则、脚本入口和 MitM 域名。
-- `AppAdFilter.js`：五个脚本入口共用的过滤文件。模块自动从此仓库下载，不能删除。
+- `AppAdBlock.sgmodule` 提供路径规则、脚本入口、MitM 主机和 `AppAdSDK` 域名表。
+- `AppAdFilter.js` 由模块引用。脚本可以保存本地诊断摘要，摘要只记录时间、固定类别和响应结构。
 
-脚本不记录请求、响应或用户信息。Jump 广告接口直接返回空结果；Alcidae 保留请求 ID 并清空广告数组；B 站只移除有广告标记的卡片。
+主配置需要引用 SDK 域名表，才能对这些域名执行静默丢弃。已配置下列引用的设备只需更换模块。
+
+```ini
+[Ruleset AppAdSDK]
+# 由模块填充。
+
+[Rule]
+RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
+```
+
+## 高德实时开屏
+
+Proxyman 抓到两条 `amap-aos-info-nogw.amap.com/ws/aos/alimama/splash_screen_rt` 的成功响应。每条响应都带了一条开屏广告。Surge 仅清空 multipart 表单 `jsonData` 里的 `data.custom_list`，保留原来的成功状态和其他字段。
+
+## 历史记录
+
+以下是 2026 年 10 月 24 日的测试记录。
 
 ## 闲鱼开屏
 
@@ -24,9 +38,6 @@
 2026-10-24，用户确认更新后闲鱼开屏广告已消失。
 随后在首页连续观察 125 秒，未见新增闲鱼开屏请求或持续重试；观察范围限于 Surge 可见的新请求。
 手机更新模块后会通过带版本号的地址获取新脚本，避免沿用旧脚本缓存。
-
-这台手机通过 iCloud 使用本地模块和脚本。维护时同时同步两个文件，并将本地模块的 `script-path` 设为 `AppAdFilter.js`。
-手机上的点击、重启和验证由用户操作。
 
 ## B 站开屏
 
@@ -41,12 +52,6 @@
 2026-10-24，用户确认更新后开屏广告消失，B 站版本为 9.16.0。
 手机已启用新脚本，`splash/list` 不再被拒绝。首页连续观察 125 秒，未见新增开屏请求或持续重试。
 两款 App 的这次观察只覆盖 Surge 可见的新请求，不包含独立的 DNS 查询计数，也不能保证以后不会重试。
-
-## MitM
-
-需要开启 MitM 和脚本。模块仅添加 9 个明确域名，不解密歌曲播放、摄像头视频或地图瓦片。用户主配置中的 `gs-loc-cn.apple.com` 和 `gs-loc.apple.com` 继续保留，实际共 11 个主机名。
-
-此模块不封锁米家设备主接口、App Store 接口、B 站游戏中心或普通用户信息接口。Apple Home 不作处理。
 
 ## 更新与恢复
 

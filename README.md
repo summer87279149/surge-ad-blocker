@@ -2,7 +2,7 @@
 
 在 Surge 的「模块」中从 URL 安装，并启用「App 去广告（GitHub 版）」。停用旧的本地「App 去广告（合并版）」，避免两份规则同时匹配。模块会从 GitHub 下载脚本。 [安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-当前模块为 `2026.11.12.2`，脚本为 `2026.11.10.4`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
+当前模块和脚本均为 `2026.11.12.3`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
 
 ## 必需文件
 
@@ -19,13 +19,21 @@
 RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
 ```
 
+## 钉钉开屏
+
+钉钉请求 `gw.alicdn.com` 或 `img.alicdn.com` 的 `imgextra` 图片时，只有 User-Agent 带 `DingTalk/` 且文件名符合已知竖屏尺寸才返回透明图。这个规则依赖 Surge 能读到 HTTP 请求，尺寸仍需与手机实际素材核对。 [图片规则参考](https://github.com/wxs0625/loon-plugins/blob/main/blockAds_all.plugin#L1447) · [钉钉客户端标识](https://github.com/matomo-org/device-detector/blob/master/regexes/client/mobile_apps.yml)
+
 ## 高德开屏
+
+高德的 `frogserver/aocs/updatable` 返回一批启动配置。新版只清空 `SplashScreenControl`、`splashscreen` 和 `splashview_config` 的字符串值，保留各项状态、版本和其他配置。 [R-Store 高德脚本](https://github.com/zirawell/R-Store/blob/main/Res/Scripts/AntiAd/amap.js#L198)
 
 新版覆盖高德子域名下的 `/ws/aos/alimama/`、`/ws/valueadded/alimama/` 和 `/ws/shield/dsp/app/startup/`，可匹配这些路径下的备用接口。实时开屏仍用下面的响应过滤。`m5-x.amap.com` 和 `m5-zb.amap.com` 纳入高德网关的解密及 QUIC 回退范围。新版广告和重试尚待实机验收。 [备用广告路径参考](https://github.com/blackmatrix7/ios_rule_script/blob/master/rewrite/Surge/AdvertisingLite/AdvertisingLite.sgmodule)
 
 Proxyman 抓到两条 `amap-aos-info-nogw.amap.com/ws/aos/alimama/splash_screen_rt` 的成功响应。每条响应都带了一条开屏广告。Surge 仅清空 multipart 表单 `jsonData` 里的 `data.custom_list`，保留原来的成功状态和其他字段。
 
 ## 淘宝开屏
+
+备用 Noah 接口仅在参数含 `tao_splash` 或 `etao_splash` 时拒绝。PopLayer 模板带淘宝客户端标识时，脚本关闭已启用且含图片或视频资源的弹层。这也可能覆盖淘宝的活动弹层。 [Noah 规则](https://github.com/Thelongdarkorg/loon-plugins/blob/main/taobao_splash_ad_block.plugin) · [PopLayer 脚本](https://github.com/zirawell/R-Store/blob/main/Res/Scripts/AntiAd/taobao.js#L63)
 
 模块在 `acs.m.taobao.com` 和 `guide-acs.m.taobao.com` 按 URL 拒绝独立广告服务 `mtop.alibaba.advertisementservice.getadv`。图片、视频开屏仍由原响应脚本处理。新版广告和重试尚待实机验收。 [广告接口参考](https://github.com/fmz200/wool_scripts/blob/main/Surge/module/split/partT/Taobao.sgmodule)
 

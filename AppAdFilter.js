@@ -13,7 +13,8 @@
   const diagnostics = typeof $argument !== "undefined" && $argument === "splash-diagnostics-v1";
   const scriptName = typeof $script !== "undefined" ? $script.name : "";
   const app = scriptName === "BiliSplashAdCleaner" ? "bili" : ["XianyuSplashAds", "XianyuAdCleaner"].includes(scriptName) ? "xianyu" :
-    scriptName === "TaobaoSplashAdCleaner" ? "taobao" : scriptName === "AmapStartupDiagnostics" ? "amap" :
+    ["TaobaoSplashAdCleaner", "TaobaoPopLayerAdCleaner"].includes(scriptName) ? "taobao" :
+    ["AmapStartupDiagnostics", "AmapConfigAdCleaner"].includes(scriptName) ? "amap" :
     scriptName === "AmapGatewayDiagnostics" ? "amap-gateway" :
     scriptName === "TaobaoStartupDiagnostics" ? "taobao-startup" :
     scriptName === "XianyuDispatchDiagnostics" ? "xianyu-transport" :
@@ -337,6 +338,43 @@
     return start[0] + JSON.stringify(payload) + end[0];
   }
 
+  function filterAmapConfig(config) {
+    if ($response.status !== 200 || !isRecord(config)) return 0;
+    let changed = 0;
+    for (const key of ["SplashScreenControl", "splashscreen", "splashview_config"]) {
+      const entry = config[key];
+      if (!isRecord(entry) || ![1, "1"].includes(entry.status) || typeof entry.value !== "string" || entry.value === "") continue;
+      entry.value = "";
+      changed++;
+    }
+    return changed;
+  }
+
+  function filterTaobaoPopLayer() {
+    const userAgent = Object.entries($request.headers || {}).find(([key]) => key.toLowerCase() === "user-agent")?.[1];
+    if (typeof userAgent !== "string" || !/(?:AliApp\(TB\/\d|\bTaobao\/\d|^淘宝|^%E6%B7%98%E5%AE%9D)/i.test(userAgent)) return;
+    if ($response.status !== 200) { outcome = "non-success"; return; }
+
+    const template = readResponse();
+    outcome = "unrecognized-format";
+    if (!isRecord(template) || template.enable !== true) return;
+
+    let removed = 0;
+    for (const resources of [template.res, template.mainRes]) {
+      if (!isRecord(resources)) continue;
+      for (const key of ["images", "videos"]) {
+        if (!Array.isArray(resources[key])) continue;
+        removed += resources[key].length;
+        if (resources[key].length) resources[key] = [];
+      }
+    }
+    if (removed === 0) return;
+    template.enable = false;
+    outcome = "filtered";
+    if (diagnostics) shape.removedCount = removed;
+    return JSON.stringify(template);
+  }
+
   function isExplicitAd(entry) {
     if (!isRecord(entry)) return false;
     const adTypes = ["ad", "ads", "advert", "advertisement", "alimama", "splash_ad", "banner_ad"];
@@ -376,7 +414,7 @@
         const response = isResponse ? $response : {};
         const bodyChars = typeof response.body === "string" ? response.body.length : null;
         records.push({
-          version: "2026.11.10.4",
+          version: "2026.11.12.3",
           at: Date.now(),
           route,
           outcome,
@@ -405,6 +443,13 @@
       finish(body === undefined ? {} : { body });
       return;
     }
+    if (isResponse && scriptName === "TaobaoPopLayerAdCleaner" &&
+        /^https?:\/\/poplayer\.template\.alibaba\.com(?::443)?\/[A-Za-z0-9_]+\.json(?:\?|$)/.test(url)) {
+      route = "taobao-poplayer";
+      const body = filterTaobaoPopLayer();
+      finish(body === undefined ? {} : { body });
+      return;
+    }
     if (diagnostics && !isResponse && app === "taobao-startup") {
       if (taobaoImage) route = "taobao-image-request";
       else if (taobaoVideo) route = "taobao-video-request";
@@ -426,13 +471,25 @@
       finish({});
       return;
     }
-    if (diagnostics && isResponse && app === "amap") {
-      route = url.split("?", 1)[0].includes("/frogserver/aocs/updatable/") ? "amap-config" : "amap-startup";
+    if (isResponse && app === "amap" && (diagnostics || scriptName === "AmapConfigAdCleaner")) {
+      const configRoute = /^https?:\/\/m5(?:-x|-zb)?\.amap\.com(?::443)?\/ws\/shield\/frogserver\/aocs\/updatable\/[0-9]+\/?(?:\?|$)/.test(url);
+      if (scriptName === "AmapConfigAdCleaner" && !configRoute) { finish({}); return; }
+      route = configRoute ? "amap-config" : "amap-startup";
       const startup = JSON.parse($response.body);
+      const config = startup?.data;
       describeFields(startup, ["data", "result", "ad", "ads", "adInfo", "splash"]);
-      const config = startup && startup.data;
-      if (isRecord(config)) shape.splashConfigKeys = Object.keys(config).filter(key => /splash|startup.?ad|poplayer/i.test(key)).length;
+      if (diagnostics && isRecord(config)) shape.splashConfigKeys = Object.keys(config).filter(key => /splash|startup.?ad|poplayer/i.test(key)).length;
+
       outcome = "observed-only";
+      if (scriptName === "AmapConfigAdCleaner") {
+        const changed = filterAmapConfig(config);
+        if (diagnostics) shape.removedCount = changed;
+        if (changed > 0) {
+          outcome = "filtered";
+          finish({ body: JSON.stringify(startup) });
+          return;
+        }
+      }
       finish({});
       return;
     }

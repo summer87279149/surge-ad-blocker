@@ -15,6 +15,7 @@
   const app = scriptName === "BiliSplashAdCleaner" ? "bili" : ["XianyuSplashAds", "XianyuAdCleaner"].includes(scriptName) ? "xianyu" :
     ["TaobaoSplashAdCleaner", "TaobaoPopLayerAdCleaner"].includes(scriptName) ? "taobao" :
     ["AmapStartupDiagnostics", "AmapConfigAdCleaner"].includes(scriptName) ? "amap" :
+    scriptName === "DingTalkGifCleaner" ? "ding-gif" :
     scriptName === "AmapGatewayDiagnostics" ? "amap-gateway" :
     scriptName === "TaobaoStartupDiagnostics" ? "taobao-startup" :
     scriptName === "XianyuDispatchDiagnostics" ? "xianyu-transport" :
@@ -314,6 +315,28 @@
     return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
+  function replaceAliCdnGif() {
+    if (!/^https?:\/\/gw\.alicdn\.com(?::443)?\//.test(url) ||
+        $request.method !== "GET" || $response.status !== 200 || !($response.body instanceof Uint8Array)) return;
+    const headers = Object.entries($response.headers || {});
+    const contentType = headers.find(([name]) => name.toLowerCase() === "content-type")?.[1];
+    if (typeof contentType !== "string" || !/^image\/gif(?:\s*;|\s*$)/i.test(contentType)) return;
+
+    const replacedHeaders = new Set(["content-type", "content-length", "content-encoding", "transfer-encoding",
+      "content-md5", "content-digest", "digest", "etag", "last-modified"]);
+    return {
+      headers: {
+        ...Object.fromEntries(headers.filter(([name]) => !replacedHeaders.has(name.toLowerCase()))),
+        "Content-Type": "image/gif"
+      },
+      // 单像素透明 GIF。
+      body: Uint8Array.of(
+        71, 73, 70, 56, 57, 97, 1, 0, 1, 0, 128, 0, 0, 0, 0, 0, 255, 255, 255,
+        33, 249, 4, 1, 0, 0, 0, 0, 44, 0, 0, 0, 0, 1, 0, 1, 0, 0, 2, 1, 68, 0, 59
+      )
+    };
+  }
+
   function filterAmapSplash() {
     if ($request.method !== "POST" || $response.status !== 200 || typeof $response.body !== "string") return;
     const contentType = Object.entries($response.headers || {}).find(([name]) => name.toLowerCase() === "content-type")?.[1];
@@ -414,7 +437,7 @@
         const response = isResponse ? $response : {};
         const bodyChars = typeof response.body === "string" ? response.body.length : null;
         records.push({
-          version: "2026.11.12.3",
+          version: "2026.11.12.4",
           at: Date.now(),
           route,
           outcome,
@@ -438,6 +461,18 @@
   }
 
   try {
+    if (isResponse && scriptName === "DingTalkGifCleaner") {
+      const replacement = replaceAliCdnGif();
+      if (replacement) {
+        route = "ding-gif";
+        outcome = "filtered";
+        if (diagnostics) shape.originalBytes = $response.body.length;
+        finish(replacement);
+      } else {
+        $done({});
+      }
+      return;
+    }
     if (isResponse && scriptName === "AmapSplashAdCleaner") {
       const body = filterAmapSplash();
       finish(body === undefined ? {} : { body });

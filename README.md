@@ -2,7 +2,7 @@
 
 在 Surge 的「模块」中从 URL 安装，并启用「App 去广告（GitHub 版）」。停用旧的本地「App 去广告（合并版）」，避免两份规则同时匹配。模块会从 GitHub 下载脚本。 [安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-当前模块和脚本均为 `2026.11.10.4`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
+当前模块为 `2026.11.12.1`，脚本为 `2026.11.10.4`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
 
 ## 必需文件
 
@@ -19,7 +19,9 @@
 RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
 ```
 
-## 高德实时开屏
+## 高德开屏
+
+新版覆盖高德子域名下的 `/ws/aos/alimama/`、`/ws/valueadded/alimama/` 和 `/ws/shield/dsp/app/startup/`，可匹配这些路径下的备用接口。实时开屏仍用下面的响应过滤。`m5-x.amap.com` 和 `m5-zb.amap.com` 纳入高德网关的解密及 QUIC 回退范围。新版广告和重试尚待实机验收。 [备用广告路径参考](https://github.com/blackmatrix7/ios_rule_script/blob/master/rewrite/Surge/AdvertisingLite/AdvertisingLite.sgmodule)
 
 Proxyman 抓到两条 `amap-aos-info-nogw.amap.com/ws/aos/alimama/splash_screen_rt` 的成功响应。每条响应都带了一条开屏广告。Surge 仅清空 multipart 表单 `jsonData` 里的 `data.custom_list`，保留原来的成功状态和其他字段。
 

@@ -1,7 +1,7 @@
 #!name = App 去广告（GitHub 版）
 #!desc = 广告 SDK 域名集中于 AppAdSDK；配合主配置提前静默丢弃，保留 App 响应过滤。
 #!author = summer87279149
-#!version = 2026.11.10.4
+#!version = 2026.11.12.1
 
 [Ruleset AppAdSDK]
 # 已确认的广告专用域名；不包含共享业务网关。
@@ -86,13 +86,14 @@ URL-REGEX,^https?:\/\/(?:(?:g-)?acs\.m\.goofish\.com|acs\.m\.taobao\.com)(?::443
 # 本机由主配置的 REJECT-DROP 引用处理；普通拒绝后备会抢先命中，必须停用。
 # RULE-SET,AppAdSDK,REJECT,pre-matching,extended-matching
 
-URL-REGEX,^https?:\/\/(?:amap-aos-info-nogw|m5-x)\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen\/?(?:\?|$),REJECT
-URL-REGEX,^https?:\/\/m5-x\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt\/?(?:\?|$),REJECT
-URL-REGEX,^https?:\/\/m5(?:-x)?\.amap\.com(?::443)?\/ws\/valueadded\/alimama\/splash_screen\/?(?:\?|$),REJECT
+# 高德 Alimama 广告接口。已验证的实时开屏端点由下方响应脚本处理。
+URL-REGEX,^https?:\/\/(?!(?:amap-aos-info-nogw\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt\/?(?:\?|$)))(?:[A-Za-z0-9-]+\.)+amap\.com(?::(?:80|443))?\/ws\/(?:aos|valueadded)\/alimama(?:\/|\?|$),REJECT,extended-matching
+# 高德 DSP 启动广告接口。
+URL-REGEX,^https?:\/\/(?:[A-Za-z0-9-]+\.)+amap\.com(?::(?:80|443))?\/ws\/shield\/dsp\/app\/startup(?:\/|\?|$),REJECT,extended-matching
 URL-REGEX,^https?:\/\/hmbaby\.simshine\.cn(?::443)?\/(?:admin\/filter\/advert\/getAdvertLists|admin\/filter\/crowdFunding\/getNewProductData)(?:\?|$),REJECT
 # 仅让这些 API 主机的 QUIC 回退；不封锁全机 UDP 443。
-# 这条规则只覆盖下列十个主机。
-AND,((OR,((DOMAIN,app.bilibili.com),(DOMAIN,api.bilibili.com),(DOMAIN,app.biliapi.net),(DOMAIN,app.biliapi.com),(DOMAIN,acs.m.goofish.com),(DOMAIN,g-acs.m.goofish.com),(DOMAIN,acs.m.taobao.com),(DOMAIN,guide-acs.m.taobao.com),(DOMAIN,amap-aos-info-nogw.amap.com),(DOMAIN,m5.amap.com))),(PROTOCOL,QUIC)),REJECT
+# 这条规则只覆盖下列十二个主机。
+AND,((OR,((DOMAIN,app.bilibili.com),(DOMAIN,api.bilibili.com),(DOMAIN,app.biliapi.net),(DOMAIN,app.biliapi.com),(DOMAIN,acs.m.goofish.com),(DOMAIN,g-acs.m.goofish.com),(DOMAIN,acs.m.taobao.com),(DOMAIN,guide-acs.m.taobao.com),(DOMAIN,amap-aos-info-nogw.amap.com),(DOMAIN,m5.amap.com),(DOMAIN,m5-x.amap.com),(DOMAIN,m5-zb.amap.com))),(PROTOCOL,QUIC)),REJECT
 
 [Script]
 AmapSplashAdCleaner = type=http-response,pattern=^https?:\/\/amap-aos-info-nogw\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
@@ -107,8 +108,8 @@ JumpAds = type=http-request,pattern=^https?:\/\/switch\.jumpvg\.com(?::443)?\/ju
 AlcidaeAdConfig = type=http-response,pattern=^https?:\/\/app-api-32\.ihaique\.net(?::443)?\/api\/app\/v5\/appad\/cmd\/AppadGetSplashAds(?:\?|$),requires-body=true,max-size=65536,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
 BiliFeedAdCleaner = type=http-response,pattern=^https?:\/\/app\.bilibili\.com(?::443)?\/[^?]+\/feed\/index(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
 
-# 可选高德诊断：只记录启动接口的结构，原样返回响应。
-AmapStartupDiagnostics = type=http-response,pattern=^https?:\/\/m5(?:-x)?\.amap\.com(?::443)?\/ws\/shield\/(?:dsp\/app\/startup\/init|frogserver\/aocs\/updatable\/\d+)\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
+# 高德诊断：只记录配置响应结构和网关请求类别。
+AmapStartupDiagnostics = type=http-response,pattern=^https?:\/\/m5(?:-x)?\.amap\.com(?::443)?\/ws\/shield\/frogserver\/aocs\/updatable\/\d+\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
 AmapGatewayDiagnostics = type=http-request,pattern=^https?:\/\/m5-x\.amap\.com(?::443)?\/,requires-body=false,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261110.4
 
 # 可选淘宝启动诊断：只记固定请求类别。启用 PopLayer 观察时追加对应 MitM 主机。
@@ -124,4 +125,4 @@ XianyuDispatchDiagnostics = type=http-response,pattern=^http:\/\/(?:amdc\.m\.tao
 [MITM]
 # 启用播放器诊断时，临时追加 grpc.biliapi.net、cm.bilibili.com。
 # 保留主配置中的主机名，只插入本模块所需主机。
-hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, poplayer.template.alibaba.com
+hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, m5-zb.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, poplayer.template.alibaba.com

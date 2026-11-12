@@ -1,7 +1,7 @@
 #!name = App 去广告（GitHub 版）
 #!desc = 广告 SDK 域名集中于 AppAdSDK；配合主配置提前静默丢弃，保留 App 响应过滤。
 #!author = summer87279149
-#!version = 2026.11.12.4
+#!version = 2026.11.12.5
 
 [Ruleset AppAdSDK]
 # 已确认的广告专用域名；不包含共享业务网关。
@@ -11,6 +11,8 @@ DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com
 DOMAIN-SUFFIX,pangolin-sdk-toutiao1.com
 DOMAIN-SUFFIX,pglstatp-toutiao.com
 DOMAIN-SUFFIX,pangle.io
+DOMAIN,ad.toutiao.com
+DOMAIN,adshare.toutiao.com
 
 # 腾讯优量汇
 DOMAIN,pgdt.gtimg.cn
@@ -88,6 +90,12 @@ URL-REGEX,^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.alibaba
 # 淘宝开屏备用投放，只匹配带开屏标记的 Noah 请求。
 URL-REGEX,^https?:\/\/acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.etao\.noah\.query(?:\/[0-9.]+)?\/?\?[^#]*(?:[=&:]|%22|%3[AaDd])e?tao_splash(?:[&}]|%22|%26|%2[Cc]|%7[Dd]|$),REJECT,extended-matching
 
+# 钉钉开屏同期出现的主机，按精确域名试拦。
+DOMAIN,mk.dingtalk.com,REJECT,extended-matching
+
+# 抖音公开开屏与广告接口，只匹配两台 API 主机。
+URL-REGEX,^https?:\/\/(?:aweme\.snssdk\.com|api-hl\.amemv\.com)(?::443)?\/(?:aweme\/v[0-9]+\/screen\/ad|api\/ad)(?:\/|\?|$),REJECT,extended-matching
+
 # 共享 CDN 上的 GIF 请求返回透明图。
 URL-REGEX,^https?:\/\/gw\.alicdn\.com(?::443)?\/[^?]*\.[Gg][Ii][Ff](?:_[A-Za-z0-9_.!-]+)?(?:\?|$),REJECT-TINYGIF
 # 钉钉开屏素材，要求请求带钉钉客户端标识并匹配已知竖屏尺寸。
@@ -140,4 +148,4 @@ XianyuDispatchDiagnostics = type=http-response,pattern=^http:\/\/(?:amdc\.m\.tao
 [MITM]
 # 启用播放器诊断时，临时追加 grpc.biliapi.net、cm.bilibili.com。
 # 保留主配置中的主机名，只插入本模块所需主机。
-hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, m5-zb.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, poplayer.template.alibaba.com, gw.alicdn.com, img.alicdn.com
+hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, m5-zb.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, poplayer.template.alibaba.com, gw.alicdn.com, img.alicdn.com, aweme.snssdk.com, api-hl.amemv.com

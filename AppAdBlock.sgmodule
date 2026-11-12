@@ -1,7 +1,7 @@
 #!name = App 去广告（GitHub 版）
 #!desc = 广告 SDK 域名集中于 AppAdSDK；配合主配置提前静默丢弃，保留 App 响应过滤。
 #!author = summer87279149
-#!version = 2026.11.12.1
+#!version = 2026.11.12.2
 
 [Ruleset AppAdSDK]
 # 已确认的广告专用域名；不包含共享业务网关。
@@ -82,6 +82,9 @@ DOMAIN,optimus-ads.amap.com
 [Rule]
 # 闲鱼同步与异步开屏 API。
 URL-REGEX,^https?:\/\/(?:(?:g-)?acs\.m\.goofish\.com|acs\.m\.taobao\.com)(?::443)?\/gw\/mtop\.taobao\.idlecommerce\.splash\.(?:async\.)?ads(?:\/[0-9.]+)?\/?(?:\?|$),REJECT,extended-matching
+
+# 淘宝独立广告服务 API。
+URL-REGEX,^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.alibaba\.advertisementservice\.getadv(?:\/[0-9.]+)?\/?(?:\?|$),REJECT,extended-matching
 
 # 本机由主配置的 REJECT-DROP 引用处理；普通拒绝后备会抢先命中，必须停用。
 # RULE-SET,AppAdSDK,REJECT,pre-matching,extended-matching

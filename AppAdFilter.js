@@ -7,14 +7,17 @@
   const mtopMatch = /^https?:\/\/(?:(?:g-)?acs\.m\.goofish\.com|acs\.m\.taobao\.com)(?::443)?\/gw\/([^/?]+)(\/[0-9.]+)?\/?(?:\?|$)/.exec(url);
   const mtopApi = mtopMatch ? mtopMatch[1] : "";
   const hasMtopVersion = Boolean(mtopMatch?.[2]);
+  const cainiaoMatch = /^https?:\/\/(?:(?:cn(?:-unit)?-)?acs\.m\.cainiao\.com|netflow-mtop\.cainiao\.com|(?:guide-|acs4miniapp-inner\.)?acs\.m\.taobao\.com)(?::443)?\/gw\/([^/?]+)(?:\/[0-9.]+)?\/?(?:\?|$)/.exec(url);
+  const cainiaoApi = cainiaoMatch ? cainiaoMatch[1] : "";
   const taobaoImage = /^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.wireless\.home\.splash\.awesome\.get(?:\/[0-9.]+)?\/?(?:\?|$)/.test(url);
-  const taobaoVideo = /^https?:\/\/guide-acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.cloudvideo\.video\.query(?:\/[0-9.]+)?\/?(?:\?|$)/.test(url);
+  const taobaoVideo = /^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.cloudvideo\.video\.query(?:\/[0-9.]+)?\/?(?:\?|$)/.test(url);
   const isResponse = typeof $response !== "undefined";
   const diagnostics = typeof $argument !== "undefined" && $argument === "splash-diagnostics-v1";
   const scriptName = typeof $script !== "undefined" ? $script.name : "";
   const app = scriptName === "BiliSplashAdCleaner" ? "bili" : ["XianyuSplashAds", "XianyuAdCleaner"].includes(scriptName) ? "xianyu" :
     ["TaobaoSplashAdCleaner", "TaobaoPopLayerAdCleaner"].includes(scriptName) ? "taobao" :
-    ["AmapStartupDiagnostics", "AmapConfigAdCleaner"].includes(scriptName) ? "amap" :
+    scriptName === "CainiaoAdCleaner" ? "cainiao" :
+    ["AmapSplashAdCleaner", "AmapStartupDiagnostics", "AmapConfigAdCleaner"].includes(scriptName) ? "amap" :
     scriptName === "DingTalkGifCleaner" ? "ding-gif" :
     scriptName === "AmapGatewayDiagnostics" ? "amap-gateway" :
     scriptName === "TaobaoStartupDiagnostics" ? "taobao-startup" :
@@ -422,7 +425,7 @@
 
   function finish(result) {
     const observedRequest = route !== "unmatched" && (app === "amap-gateway" || app === "taobao-startup");
-    if (diagnostics && app && (isResponse || observedRequest) && !["xianyu-feed", "xianyu-promotion"].includes(route)) {
+    if (diagnostics && app && (isResponse || observedRequest) && !["xianyu-feed", "xianyu-promotion", "cainiao-banner", "cainiao-adkeyword"].includes(route)) {
       try {
         if (app === "bili") shape.controlsAfter = splashControls(parsedResponse && parsedResponse.data);
         const key = "AppAdFilter.splashDiagnostics.v1." + app;
@@ -437,7 +440,7 @@
         const response = isResponse ? $response : {};
         const bodyChars = typeof response.body === "string" ? response.body.length : null;
         records.push({
-          version: "2026.11.12.4",
+          version: "2026.11.18.1",
           at: Date.now(),
           route,
           outcome,
@@ -474,7 +477,9 @@
       return;
     }
     if (isResponse && scriptName === "AmapSplashAdCleaner") {
+      route = "amap-splash-rt";
       const body = filterAmapSplash();
+      if (body !== undefined) outcome = "filtered";
       finish(body === undefined ? {} : { body });
       return;
     }
@@ -631,8 +636,71 @@
         if (recognized) outcome = "known-fields-empty";
       }
     }
+    const cainiaoSplash = cainiaoApi === "mtop.cainiao.guoguo.nbnetflow.ads.show.cn";
+    const cainiaoBanner = ["mtop.cnwireless.CNBannerService.getBanners", "mtop.cnwireless.CNBannerService.getBannersByLngLat"].includes(cainiaoApi);
+    const cainiaoKeyword = cainiaoApi === "mtop.cainiao.adkeyword.get.cn";
+    if (isResponse && (cainiaoSplash || cainiaoBanner || cainiaoKeyword)) {
+      route = cainiaoSplash ? "cainiao-splash" : cainiaoBanner ? "cainiao-banner" : "cainiao-adkeyword";
+      const data = readResponse();
+      const success = $response.status >= 200 && $response.status < 300 && data && Array.isArray(data.ret) &&
+        data.ret.some(value => typeof value === "string" && /^SUCCESS::/.test(value));
+      outcome = success ? "unrecognized-format" : "non-success";
+      if (success && isRecord(data.data)) {
+        let recognized = false;
+        let removed = 0;
+        if (cainiaoSplash) {
+          const isCainiaoAdItem = item => {
+            if (!isRecord(item)) return false;
+            if (isExplicitAd(item) || isRecord(item.nextSplashAd) || item.isTopViewTemplate === true) return true;
+            const mapper = item.materialContentMapper;
+            if (!isRecord(mapper)) return false;
+            return Boolean(
+              mapper.adItemDetail ||
+              mapper.forbidSplashAdInfo ||
+              (typeof mapper.adSource === "string" && mapper.adSource !== "") ||
+              (typeof mapper.splashMime === "string" && mapper.splashMime !== "") ||
+              (typeof mapper.adxContentTag === "string" && mapper.adxContentTag !== "") ||
+              (Array.isArray(mapper.landing) && mapper.landing.length > 0) ||
+              (mapper.bgImg && mapper.advRecGmtModifiedTime) ||
+              ["common_header_banner", "entertainment", "interests", "kuaishou_banner"].includes(mapper.group_id)
+            );
+          };
+          describeFields(data.data, ["result"]);
+          if (typeof data.data.result === "string") {
+            let parsed = null;
+            try { parsed = JSON.parse(data.data.result); } catch (_) {}
+            if (Array.isArray(parsed)) {
+              recognized = true;
+              const kept = parsed.filter(item => !isCainiaoAdItem(item));
+              removed = parsed.length - kept.length;
+              if (removed > 0) data.data.result = JSON.stringify(kept);
+            }
+          } else if (Array.isArray(data.data.result)) {
+            recognized = true;
+            const kept = data.data.result.filter(item => !isCainiaoAdItem(item));
+            removed = data.data.result.length - kept.length;
+            if (removed > 0) data.data.result = kept;
+          }
+        } else if (cainiaoBanner && Array.isArray(data.data.banners)) {
+          recognized = true;
+          removed = data.data.banners.length;
+          if (removed > 0) data.data.banners = [];
+        } else if (cainiaoKeyword && isRecord(data.data.result) && Array.isArray(data.data.result.adHotKeywords)) {
+          recognized = true;
+          removed = data.data.result.adHotKeywords.length;
+          if (removed > 0) data.data.result.adHotKeywords = [];
+        }
+        if (diagnostics) shape.removedCount = removed;
+        if (removed > 0) {
+          outcome = "filtered";
+          finish({ body: JSON.stringify(data) });
+          return;
+        }
+        if (recognized) outcome = "known-fields-empty";
+      }
+    }
     const xianyuSplash = ["mtop.taobao.idlecommerce.splash.async.ads", "mtop.taobao.idlecommerce.splash.ads"].includes(mtopApi);
-    const xianyuFeed = ["mtop.taobao.idlehome.home.nextfresh", "mtop.taobao.idle.local.home", "mtop.taobao.idlemtopsearch.search"].includes(mtopApi);
+    const xianyuFeed = ["mtop.taobao.idlehome.home.nextfresh", "mtop.taobao.idle.local.home", "mtop.taobao.idle.local.home.feeds", "mtop.taobao.idle.seafood.home.feeds", "mtop.taobao.idlemtopsearch.search"].includes(mtopApi);
     const xianyuPromotion = ["mtop.taobao.idle.user.strategy.list", "mtop.taobao.idlemtopsearch.search.shade", "mtop.taobao.idlemtopsearch.item.search.activate"].includes(mtopApi);
     if (isResponse && (xianyuSplash || (hasMtopVersion && (xianyuFeed || xianyuPromotion)))) {
       route = xianyuSplash ? (mtopApi.includes(".async.") ? "xianyu-async" : "xianyu-splash") : xianyuFeed ? "xianyu-feed" : "xianyu-promotion";

@@ -2,7 +2,7 @@
 
 在 Surge 的「模块」中从 URL 安装，并启用「App 去广告（GitHub 版）」。停用旧的本地「App 去广告（合并版）」，避免两份规则同时匹配。模块会从 GitHub 下载脚本。 [安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-当前模块为 `2026.11.13.1`，脚本为 `2026.11.12.4`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
+当前模块为 `2026.11.18.1`，脚本为 `2026.11.18.1`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
 
 ## 必需文件
 
@@ -19,6 +19,12 @@
 RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
 ```
 
+## 菜鸟开屏与页面净化
+
+阻断闲鱼、菜鸟、高德通过阿里 AMDC（含内置固定 IP 回退）获取私有传输调度，使开屏请求回退至可解密的 HTTPS（排除淘宝，避免影响加购与下单）。
+
+`CainiaoAdCleaner` 在菜鸟及淘宝备用网关过滤 `mtop.cainiao.guoguo.nbnetflow.ads.show.cn`（同时覆盖实时开屏、启动后预加载开屏及个人页广告项；预加载收到空数组会触发客户端清理本地开屏缓存目录）、`CNBannerService.getBanners` 与 `mtop.cainiao.adkeyword.get.cn`。模块另按 URL 拒绝 `guoappstartup.ads`、`adx.flyad.getad`、`cabt.ads`、`logistics.ads`、`nbnetflow.ads.mshow` 等专用广告接口，并在 `AppAdSDK` 补充美数 `1rtb`、秒针及菜鸟广告监控域名。新版开屏与重试尚待实机验收。
+
 ## 钉钉开屏
 
 钉钉开屏时观察到 `mk.dingtalk.com` 的连接。模块按精确域名试拦该主机，待实机核对是否影响开屏及正常功能。 [公开拦截表](https://github.com/huijingfei/Shadowrocket-Rules/blob/main/sr_app_ad.conf)
@@ -29,7 +35,7 @@ RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
 
 ## 抖音开屏
 
-在 `aweme.snssdk.com` 和实机见到的 `api-hl.amemv.com` 上，只拒绝 `/aweme/v*/screen/ad/` 与 `/api/ad/`。解密范围只增加这两个主机。新增两个巨量广告域名 `ad.toutiao.com` 和 `adshare.toutiao.com`。待确认预加载开屏、视频播放、评论和重试。 [开屏路径参考](https://github.com/lbrachel/Surge/blob/master/Shadowrocket.conf) · [广告接口参考](https://github.com/k6nfmm7dbr-commits/douyin-lite/blob/main/surge/douyin-lite-plus.sgmodule)
+覆盖 `aweme.snssdk.com`、`api.amemv.com`、`api-hl.amemv.com` 及 TNC 动态调度的 `api*-normal*.amemv.com`、`api*-core*.amemv.com`、`search*-search*.amemv.com`（排除 `api-play*` 与视频图片 CDN），补齐对应主机的 QUIC 回退，按 URL 拒绝 `/api/ad/`（含 `/api/ad/v16/splash/preload`）、`/aweme/v*/screen/ad`、`/aweme/v*/ad/(rank|search/association)` 及 `/aweme/v*/startup/popups`。待确认预加载开屏、视频播放、评论和重试。 [开屏路径参考](https://github.com/lbrachel/Surge/blob/master/Shadowrocket.conf) · [广告接口参考](https://github.com/k6nfmm7dbr-commits/douyin-lite/blob/main/surge/douyin-lite-plus.sgmodule)
 
 ## 高德开屏
 

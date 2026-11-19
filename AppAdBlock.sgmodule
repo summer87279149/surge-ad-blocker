@@ -1,23 +1,16 @@
 #!name = App 去广告（GitHub 版）
 #!desc = 广告 SDK 域名集中于 AppAdSDK；配合主配置提前静默丢弃，保留 App 响应过滤。
 #!author = summer87279149
-#!version = 2026.11.18.1
+#!version = 2026.11.19.1
 
 [Ruleset AppAdSDK]
 # 已确认的广告专用域名；不包含共享业务网关。
-# 穿山甲 / GroMore / Pangle / 巨量引擎
+# 穿山甲 / GroMore / Pangle
 DOMAIN-SUFFIX,pangolin-sdk-toutiao.com
 DOMAIN-SUFFIX,pangolin-sdk-toutiao-b.com
 DOMAIN-SUFFIX,pangolin-sdk-toutiao1.com
 DOMAIN-SUFFIX,pglstatp-toutiao.com
 DOMAIN-SUFFIX,pangle.io
-DOMAIN-SUFFIX,pangle.cn
-DOMAIN-SUFFIX,oceanengine.com
-DOMAIN-SUFFIX,oceanengine.cn
-DOMAIN-SUFFIX,shoppingads.cn
-DOMAIN-WILDCARD,*ads*-normal*.zijieapi.com
-DOMAIN,ad.toutiao.com
-DOMAIN,adshare.toutiao.com
 
 # 腾讯优量汇
 DOMAIN,pgdt.gtimg.cn
@@ -105,9 +98,6 @@ URL-REGEX,^https?:\/\/acs\.m\.taobao\.com(?::443)?\/gw\/(?:mtop\.etao\.noah\.que
 # 钉钉开屏同期出现的主机，按精确域名试拦。
 DOMAIN,mk.dingtalk.com,REJECT,extended-matching
 
-# 抖音开屏实时与预加载（含 v16/splash/preload）、搜索/排行广告与启动弹窗接口；覆盖动态 TNC normal/core 主机并排除 api-play 播放主机。
-URL-REGEX,^https?:\/\/(?:(?:aweme(?:-eagle)?|api)\.snssdk\.com|(?:api(?:-(?:hl|eagle)|[0-9]*-(?:normal|core)[a-z0-9-]*)?|search[0-9]*-search[a-z0-9-]*)\.amemv\.com)(?::443)?\/(?:api\/ad|aweme\/v[0-9]+\/(?:screen\/ad|ad\/(?:rank|search\/association)|startup\/popups))(?:\/|\?|$),REJECT,extended-matching
-
 # 共享 CDN 上的 GIF 请求返回透明图。
 URL-REGEX,^https?:\/\/gw\.alicdn\.com(?::443)?\/[^?]*\.[Gg][Ii][Ff](?:_[A-Za-z0-9_.!-]+)?(?:\?|$),REJECT-TINYGIF
 # 钉钉开屏素材，要求请求带钉钉客户端标识并匹配已知竖屏尺寸。
@@ -122,47 +112,46 @@ URL-REGEX,^https?:\/\/(?!(?:(?:amap-aos-info-nogw|m5(?:-x|-zb)?)\.amap\.com(?::4
 # 高德 DSP 启动广告与 ASA 广告归因接口。
 URL-REGEX,^https?:\/\/(?:[A-Za-z0-9-]+\.)+amap\.com(?::(?:80|443))?\/ws\/(?:shield\/dsp\/app\/startup|asa\/ads_attribution)(?:\/|\?|$),REJECT,extended-matching
 URL-REGEX,^https?:\/\/hmbaby\.simshine\.cn(?::443)?\/(?:admin\/filter\/advert\/getAdvertLists|admin\/filter\/crowdFunding\/getNewProductData)(?:\?|$),REJECT
-# 仅让这些已解密 API 主机的 QUIC 回退；不封锁全机 UDP 443，也不触碰抖音播放与素材 CDN。
+# 仅让这些已解密 API 主机的 QUIC 回退；不封锁全机 UDP 443。
 AND,((OR,((DOMAIN,app.bilibili.com),(DOMAIN,api.bilibili.com),(DOMAIN,app.biliapi.net),(DOMAIN,app.biliapi.com),(DOMAIN,acs.m.goofish.com),(DOMAIN,g-acs.m.goofish.com),(DOMAIN,acs.m.taobao.com),(DOMAIN,guide-acs.m.taobao.com),(DOMAIN,acs4miniapp-inner.m.taobao.com),(DOMAIN,poplayer.template.alibaba.com),(DOMAIN,amdc.m.taobao.com),(DOMAIN,cn-acs.m.cainiao.com),(DOMAIN,cn-unit-acs.m.cainiao.com),(DOMAIN,acs.m.cainiao.com),(DOMAIN,netflow-mtop.cainiao.com),(DOMAIN,amap-aos-info-nogw.amap.com),(DOMAIN,m5.amap.com),(DOMAIN,m5-x.amap.com),(DOMAIN,m5-zb.amap.com))),(PROTOCOL,QUIC)),REJECT
-AND,((OR,((DOMAIN,aweme.snssdk.com),(DOMAIN,aweme-eagle.snssdk.com),(DOMAIN,api.snssdk.com),(DOMAIN,api.amemv.com),(DOMAIN,api-hl.amemv.com),(DOMAIN,api-eagle.amemv.com),(DOMAIN-WILDCARD,api*-normal*.amemv.com),(DOMAIN-WILDCARD,api*-core*.amemv.com),(DOMAIN-WILDCARD,search*-search*.amemv.com))),(PROTOCOL,QUIC)),REJECT
 
 [Script]
 # 按响应类型识别 URL 无 GIF 后缀的动图。
-DingTalkGifCleaner = type=http-response,pattern=^https?:\/\/gw\.alicdn\.com(?::443)?\/,requires-body=true,binary-body-mode=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+DingTalkGifCleaner = type=http-response,pattern=^https?:\/\/gw\.alicdn\.com(?::443)?\/,requires-body=true,binary-body-mode=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 高德：只清实时开屏成功响应中的广告列表，保留 multipart 格式。
-AmapSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:amap-aos-info-nogw|m5(?:-x|-zb)?)\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+AmapSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:amap-aos-info-nogw|m5(?:-x|-zb)?)\.amap\.com(?::443)?\/ws\/aos\/alimama\/splash_screen_rt\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 默认关闭诊断。排查时只给对应过滤脚本加上 argument=splash-diagnostics-v1。
 # B 站：清空已识别的广告数组；仅 list 的两个已有间隔取 Int32 上限，max_time 取 1。
-BiliSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:app\.bili(?:bili\.com|api\.net|api\.com)|api\.bilibili\.com)(?::443)?\/x\/v2\/splash\/[^?]+(?:\?|$),requires-body=true,max-size=3145728,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+BiliSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:app\.bili(?:bili\.com|api\.net|api\.com)|api\.bilibili\.com)(?::443)?\/x\/v2\/splash\/[^?]+(?:\?|$),requires-body=true,max-size=3145728,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 闲鱼：只过滤首页、同城、海鲜市场、搜索和策略里的明确广告条目。
-XianyuAdCleaner = type=http-response,pattern=^https?:\/\/(?:(?:g-)?acs\.m\.goofish\.com|acs\.m\.taobao\.com)(?::443)?\/gw\/(?:mtop\.taobao\.(?:idlehome\.home\.nextfresh|idle\.local\.home(?:\.feeds)?|idle\.seafood\.home\.feeds|idlemtopsearch\.(?:search(?:\.shade)?|item\.search\.activate)|idle\.user\.strategy\.list)|mtop\.idle\.idleadv\.scene\.restore)\/[0-9.]+\/?(?:\?|$),requires-body=true,max-size=2097152,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+XianyuAdCleaner = type=http-response,pattern=^https?:\/\/(?:(?:g-)?acs\.m\.goofish\.com|acs\.m\.taobao\.com)(?::443)?\/gw\/(?:mtop\.taobao\.(?:idlehome\.home\.nextfresh|idle\.local\.home(?:\.feeds)?|idle\.seafood\.home\.feeds|idlemtopsearch\.(?:search(?:\.shade)?|item\.search\.activate)|idle\.user\.strategy\.list)|mtop\.idle\.idleadv\.scene\.restore)\/[0-9.]+\/?(?:\?|$),requires-body=true,max-size=2097152,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 菜鸟：清理实时与预加载开屏（触发本地缓存目录清理）、个人页广告项、Banner 和搜索热词广告列表。
-CainiaoAdCleaner = type=http-response,pattern=^https?:\/\/(?:(?:cn(?:-unit)?-)?acs\.m\.cainiao\.com|netflow-mtop\.cainiao\.com|(?:guide-|acs4miniapp-inner\.)?acs\.m\.taobao\.com)(?::443)?\/gw\/(?:mtop\.cainiao\.(?:guoguo\.nbnetflow\.ads\.show\.cn|adkeyword\.get\.cn)|mtop\.cnwireless\.CNBannerService\.getBanners(?:ByLngLat)?)(?:\/[0-9.]+)?\/?(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+CainiaoAdCleaner = type=http-response,pattern=^https?:\/\/(?:(?:cn(?:-unit)?-)?acs\.m\.cainiao\.com|netflow-mtop\.cainiao\.com|(?:guide-|acs4miniapp-inner\.)?acs\.m\.taobao\.com)(?::443)?\/gw\/(?:mtop\.cainiao\.(?:guoguo\.nbnetflow\.ads\.show\.cn|adkeyword\.get\.cn)|mtop\.cnwireless\.CNBannerService\.getBanners(?:ByLngLat)?)(?:\/[0-9.]+)?\/?(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 淘宝：只清开屏响应中已知的图片、视频素材数组，保留上游状态和其他字段。
-TaobaoSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.(?:wireless\.home\.splash\.awesome\.get|cloudvideo\.video\.query)(?:\/[0-9.]+)?\/?(?:\?|$),requires-body=true,max-size=2097152,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+TaobaoSplashAdCleaner = type=http-response,pattern=^https?:\/\/(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.(?:wireless\.home\.splash\.awesome\.get|cloudvideo\.video\.query)(?:\/[0-9.]+)?\/?(?:\?|$),requires-body=true,max-size=2097152,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 淘宝：按客户端标识与响应结构过滤 PopLayer 图片和视频弹层。
-TaobaoPopLayerAdCleaner = type=http-response,pattern=^https?:\/\/poplayer\.template\.alibaba\.com(?::443)?\/[A-Za-z0-9_]+\.json(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
-JumpAds = type=http-request,pattern=^https?:\/\/switch\.jumpvg\.com(?::443)?\/jump\/(?:getlaunchad\/v2|ad\/home\/screen(?:\/full_v2)?|ad\/kiko_down_page\/conf|recommend\/ad_conf|notice\/popup)(?:\?|$),timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
-AlcidaeAdConfig = type=http-response,pattern=^https?:\/\/app-api-32\.ihaique\.net(?::443)?\/api\/app\/v5\/appad\/cmd\/AppadGetSplashAds(?:\?|$),requires-body=true,max-size=65536,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
-BiliFeedAdCleaner = type=http-response,pattern=^https?:\/\/app\.bilibili\.com(?::443)?\/[^?]+\/feed\/index(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+TaobaoPopLayerAdCleaner = type=http-response,pattern=^https?:\/\/poplayer\.template\.alibaba\.com(?::443)?\/[A-Za-z0-9_]+\.json(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
+JumpAds = type=http-request,pattern=^https?:\/\/switch\.jumpvg\.com(?::443)?\/jump\/(?:getlaunchad\/v2|ad\/home\/screen(?:\/full_v2)?|ad\/kiko_down_page\/conf|recommend\/ad_conf|notice\/popup)(?:\?|$),timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
+AlcidaeAdConfig = type=http-response,pattern=^https?:\/\/app-api-32\.ihaique\.net(?::443)?\/api\/app\/v5\/appad\/cmd\/AppadGetSplashAds(?:\?|$),requires-body=true,max-size=65536,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
+BiliFeedAdCleaner = type=http-response,pattern=^https?:\/\/app\.bilibili\.com(?::443)?\/[^?]+\/feed\/index(?:\?|$),requires-body=true,max-size=1048576,timeout=3,script-update-interval=86400,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 
 # 高德：仅清空已识别的开屏配置值。
-AmapConfigAdCleaner = type=http-response,pattern=^https?:\/\/m5(?:-x|-zb)?\.amap\.com(?::443)?\/ws\/shield\/frogserver\/aocs\/updatable\/[0-9]+\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+AmapConfigAdCleaner = type=http-response,pattern=^https?:\/\/m5(?:-x|-zb)?\.amap\.com(?::443)?\/ws\/shield\/frogserver\/aocs\/updatable\/[0-9]+\/?(?:\?|$),requires-body=true,max-size=131072,timeout=3,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 # 可选高德网关诊断：只记录请求类别。
-# AmapGatewayDiagnostics = type=http-request,pattern=^https?:\/\/m5-x\.amap\.com(?::443)?\/,requires-body=false,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+# AmapGatewayDiagnostics = type=http-request,pattern=^https?:\/\/m5-x\.amap\.com(?::443)?\/,requires-body=false,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 
 # 可选淘宝启动诊断：只记固定请求类别。启用 PopLayer 观察时追加对应 MitM 主机。
-# TaobaoStartupDiagnostics = type=http-request,pattern=^https?:\/\/(?:(?:(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.wireless\.home\.splash\.awesome\.get|guide-acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.cloudvideo\.video\.query|acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.alibaba\.advertisementservice\.getadv)(?:\/[0-9.]+)?\/?|poplayer\.template\.alibaba\.com(?::443)?\/[A-Za-z0-9_]+\.json)(?:\?|$),requires-body=false,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+# TaobaoStartupDiagnostics = type=http-request,pattern=^https?:\/\/(?:(?:(?:guide-)?acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.wireless\.home\.splash\.awesome\.get|guide-acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.taobao\.cloudvideo\.video\.query|acs\.m\.taobao\.com(?::443)?\/gw\/mtop\.alibaba\.advertisementservice\.getadv)(?:\/[0-9.]+)?\/?|poplayer\.template\.alibaba\.com(?::443)?\/[A-Za-z0-9_]+\.json)(?:\?|$),requires-body=false,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 
 # 可选闲鱼传输诊断：取消下一行注释，仅观察该 App 的 AMDC 调度，不改写响应。
-# XianyuDispatchDiagnostics = type=http-response,pattern=^http:\/\/(?:amdc\.m\.taobao\.com|(?:\d\d?\d?\.){3}\d\d?\d?)(?::80)?\/amdc\/mobileDispatch\?(?:[^#]*&)?appkey=12431167(?:&|$),requires-body=true,max-size=262144,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+# XianyuDispatchDiagnostics = type=http-response,pattern=^http:\/\/(?:amdc\.m\.taobao\.com|(?:\d\d?\d?\.){3}\d\d?\d?)(?::80)?\/amdc\/mobileDispatch\?(?:[^#]*&)?appkey=12431167(?:&|$),requires-body=true,max-size=262144,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 
 # 可选播放器与配置诊断：只观察结构及间隔候选值，不修改响应。排查结束后保持注释。
-# BiliPlayerJsonDiagnostics = type=http-response,pattern=^https?:\/\/(?:cm\.bilibili\.com(?::443)?\/cm\/api\/[^?]+|api\.bilibili\.com(?::443)?\/(?:x\/kv-frontend\/namespace\/data|x\/player\/(?:wbi\/)?v2|x\/v2\/dm\/ad|x\/vip\/ads\/material(?:\/report)?))(?:\?|$),requires-body=true,max-size=1048576,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
-# BiliPlayerRPCDiagnostics = type=http-response,pattern=^https?:\/\/(?:grpc\.biliapi\.net|app\.bilibili\.com)(?::443)?\/bilibili\.app\.(?:viewunite\.v1\.View\/View|view\.v1\.View\/View|playerunite\.v1\.Player\/PlayViewUnite|playurl\.v1\.PlayURL\/PlayView|splash\.[a-z0-9.]+\/[A-Za-z]+)(?:\?|$),requires-body=true,binary-body-mode=true,max-size=1048576,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261118.1
+# BiliPlayerJsonDiagnostics = type=http-response,pattern=^https?:\/\/(?:cm\.bilibili\.com(?::443)?\/cm\/api\/[^?]+|api\.bilibili\.com(?::443)?\/(?:x\/kv-frontend\/namespace\/data|x\/player\/(?:wbi\/)?v2|x\/v2\/dm\/ad|x\/vip\/ads\/material(?:\/report)?))(?:\?|$),requires-body=true,max-size=1048576,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
+# BiliPlayerRPCDiagnostics = type=http-response,pattern=^https?:\/\/(?:grpc\.biliapi\.net|app\.bilibili\.com)(?::443)?\/bilibili\.app\.(?:viewunite\.v1\.View\/View|view\.v1\.View\/View|playerunite\.v1\.Player\/PlayViewUnite|playurl\.v1\.PlayURL\/PlayView|splash\.[a-z0-9.]+\/[A-Za-z]+)(?:\?|$),requires-body=true,binary-body-mode=true,max-size=1048576,timeout=3,argument=splash-diagnostics-v1,script-path=https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdFilter.js?v=20261119.1
 
 [MITM]
 # 启用播放器诊断时，临时追加 grpc.biliapi.net、cm.bilibili.com。
 # 排除 IP 直连目标，避免无必要的 TLS 解密；保留域名形式的广告接口过滤。
 # SNI 与原始 IP 目标的匹配次序仍需实机核对，语法通过不代表兼容性已验证。
-hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, m5-zb.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, acs4miniapp-inner.m.taobao.com, poplayer.template.alibaba.com, amdc.m.taobao.com, cn-acs.m.cainiao.com, cn-unit-acs.m.cainiao.com, acs.m.cainiao.com, netflow-mtop.cainiao.com, gw.alicdn.com, img.alicdn.com, aweme.snssdk.com, aweme-eagle.snssdk.com, api.snssdk.com, api.amemv.com, api-hl.amemv.com, api-eagle.amemv.com, api*-normal*.amemv.com, api*-core*.amemv.com, search*-search*.amemv.com
+hostname = %INSERT% -<ip-address>, app.bilibili.com, api.bilibili.com, app.biliapi.net, app.biliapi.com, amap-aos-info-nogw.amap.com, m5.amap.com, m5-x.amap.com, m5-zb.amap.com, app-api-32.ihaique.net, hmbaby.simshine.cn, switch.jumpvg.com, acs.m.goofish.com, g-acs.m.goofish.com, acs.m.taobao.com, guide-acs.m.taobao.com, acs4miniapp-inner.m.taobao.com, poplayer.template.alibaba.com, amdc.m.taobao.com, cn-acs.m.cainiao.com, cn-unit-acs.m.cainiao.com, acs.m.cainiao.com, netflow-mtop.cainiao.com, gw.alicdn.com, img.alicdn.com

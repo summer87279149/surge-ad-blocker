@@ -2,7 +2,7 @@
 
 在 Surge 的「模块」中从 URL 安装，并启用「App 去广告（GitHub 版）」。停用旧的本地「App 去广告（合并版）」，避免两份规则同时匹配。模块会从 GitHub 下载脚本。 [安装 AppAdBlock.sgmodule](https://raw.githubusercontent.com/summer87279149/surge-ad-blocker/main/AppAdBlock.sgmodule)
 
-当前模块为 `2026.11.18.1`，脚本为 `2026.11.18.1`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
+当前模块为 `2026.11.19.1`，脚本为 `2026.11.19.1`。需要 Surge iOS 5.23.0+ 或 Mac 6.10.0+，并开启 MitM 和脚本。
 
 ## 必需文件
 
@@ -32,10 +32,6 @@ RULE-SET,AppAdSDK,REJECT-DROP,pre-matching,extended-matching
 按用户要求，`gw.alicdn.com` 上的 GIF 直接返回透明图。URL 没有 GIF 后缀时，同一主机的响应脚本会替换最多 128 KiB 的 `image/gif` 响应。这个主机上的其他 GIF 也会受到影响。 [Surge 响应脚本](https://manual.nssurge.com/scripting/http-response.html)
 
 钉钉请求 `gw.alicdn.com` 或 `img.alicdn.com` 的 `imgextra` 图片时，只有 User-Agent 带 `DingTalk/` 且文件名符合已知竖屏尺寸才返回透明图。这个规则依赖 Surge 能读到 HTTP 请求，尺寸仍需与手机实际素材核对。 [图片规则参考](https://github.com/wxs0625/loon-plugins/blob/main/blockAds_all.plugin#L1447) · [钉钉客户端标识](https://github.com/matomo-org/device-detector/blob/master/regexes/client/mobile_apps.yml)
-
-## 抖音开屏
-
-覆盖 `aweme.snssdk.com`、`api.amemv.com`、`api-hl.amemv.com` 及 TNC 动态调度的 `api*-normal*.amemv.com`、`api*-core*.amemv.com`、`search*-search*.amemv.com`（排除 `api-play*` 与视频图片 CDN），补齐对应主机的 QUIC 回退，按 URL 拒绝 `/api/ad/`（含 `/api/ad/v16/splash/preload`）、`/aweme/v*/screen/ad`、`/aweme/v*/ad/(rank|search/association)` 及 `/aweme/v*/startup/popups`。待确认预加载开屏、视频播放、评论和重试。 [开屏路径参考](https://github.com/lbrachel/Surge/blob/master/Shadowrocket.conf) · [广告接口参考](https://github.com/k6nfmm7dbr-commits/douyin-lite/blob/main/surge/douyin-lite-plus.sgmodule)
 
 ## 高德开屏
 

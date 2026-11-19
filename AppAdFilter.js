@@ -440,7 +440,7 @@
         const response = isResponse ? $response : {};
         const bodyChars = typeof response.body === "string" ? response.body.length : null;
         records.push({
-          version: "2026.11.18.1",
+          version: "2026.11.19.1",
           at: Date.now(),
           route,
           outcome,
